@@ -1,0 +1,365 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { AlertCircle, MapPin, Clock, User, Camera, Upload, CheckCircle } from 'lucide-react';
+import Card from '../components/UI/Card';
+import Button from '../components/UI/Button';
+
+const SubmitHelpRequestPage = () => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    location: '',
+    urgency: '',
+    contactName: '',
+    contactPhone: '',
+    contactEmail: '',
+    anonymous: false,
+    additionalInfo: ''
+  });
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const categories = [
+    'Education',
+    'Healthcare',
+    'Employment',
+    'Counseling',
+    'Emergency'
+  ];
+
+  const urgencyLevels = [
+    { value: 'Low', description: 'Can wait a few weeks', color: 'text-green-600' },
+    { value: 'Medium', description: 'Needed within a week', color: 'text-yellow-600' },
+    { value: 'High', description: 'Needed within 2-3 days', color: 'text-orange-600' },
+    { value: 'Critical', description: 'Immediate attention required', color: 'text-red-600' }
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simulate form submission
+    setTimeout(() => {
+      setIsSubmitted(true);
+    }, 1000);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-lg w-full text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Request Submitted Successfully!</h2>
+          <p className="text-gray-600 mb-6">
+            Your help request has been received and will be reviewed by our team. We'll match you with 
+            suitable volunteers and notify you within 24 hours.
+          </p>
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+            <p className="text-sm text-blue-800">
+              <strong>Request ID:</strong> YS-2025-{Math.random().toString(36).substr(2, 6).toUpperCase()}
+            </p>
+            <p className="text-sm text-blue-600 mt-2">
+              Save this ID for tracking your request status
+            </p>
+          </div>
+          <div className="space-y-3">
+            <Button variant="primary" className="w-full">
+              Track Request Status
+            </Button>
+            <Button variant="outline" className="w-full">
+              Browse Other Requests
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
+            >
+              Submit a <span className="text-orange-500">Help Request</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg text-gray-600"
+            >
+              Connect with our community of volunteers who are ready to help. 
+              Describe your situation and we'll match you with the right support.
+            </motion.p>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <Card>
+            {/* Safety Notice */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-6 h-6 text-blue-600 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-blue-800 mb-2">Safety & Privacy Notice</h3>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• All requests are reviewed by our team before being published</li>
+                    <li>• You can choose to remain anonymous (verification still required)</li>
+                    <li>• Emergency situations will be prioritized and fast-tracked</li>
+                    <li>• Your contact information is only shared with matched volunteers</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Basic Information */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Tell Us About Your Situation</h2>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Request Title *
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Brief title describing what help you need"
+                      required
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Detailed Description *
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows={6}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Please provide detailed information about your situation, what kind of help you need, and any specific requirements..."
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <MapPin className="w-4 h-4 inline mr-2" />
+                      Location *
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="City, State (e.g., Mumbai, Maharashtra)"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Urgency Level */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  <Clock className="w-5 h-5 inline mr-2" />
+                  Urgency Level *
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {urgencyLevels.map(level => (
+                    <label key={level.value} className="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input
+                        type="radio"
+                        name="urgency"
+                        value={level.value}
+                        checked={formData.urgency === level.value}
+                        onChange={handleInputChange}
+                        className="text-orange-500 focus:ring-orange-500"
+                        required
+                      />
+                      <div className="flex-1">
+                        <div className={`font-semibold ${level.color}`}>{level.value}</div>
+                        <div className="text-sm text-gray-600">{level.description}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Video Upload */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  <Camera className="w-5 h-5 inline mr-2" />
+                  Video Message (Optional)
+                </h3>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-700 mb-2">Upload a Short Video</h4>
+                  <p className="text-gray-600 mb-4">
+                    A personal video message helps volunteers understand your situation better (Max 2 minutes, 50MB)
+                  </p>
+                  <Button type="button" variant="outline">
+                    Choose Video File
+                  </Button>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  <User className="w-5 h-5 inline mr-2" />
+                  Contact Information
+                </h3>
+                
+                <div className="mb-6">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      name="anonymous"
+                      checked={formData.anonymous}
+                      onChange={handleInputChange}
+                      className="text-orange-500 focus:ring-orange-500"
+                    />
+                    <span className="text-gray-700">
+                      Submit anonymously (your details will be verified but not displayed publicly)
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Contact Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="contactName"
+                      value={formData.contactName}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Your name or preferred name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="contactPhone"
+                      value={formData.contactPhone}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Your contact number"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="contactEmail"
+                      value={formData.contactEmail}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Your email address"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Additional Information (Optional)
+                    </label>
+                    <textarea
+                      name="additionalInfo"
+                      value={formData.additionalInfo}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Any additional information that might be helpful..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Terms and Submit */}
+              <div className="border-t pt-6">
+                <div className="mb-6">
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      className="text-orange-500 focus:ring-orange-500 mt-1"
+                      required
+                    />
+                    <span className="text-sm text-gray-700">
+                      I confirm that the information provided is accurate and I agree to Yuva Savera's 
+                      <a href="#" className="text-orange-600 hover:underline mx-1">Terms of Service</a> 
+                      and 
+                      <a href="#" className="text-orange-600 hover:underline ml-1">Privacy Policy</a>
+                    </span>
+                  </label>
+                </div>
+
+                <Button type="submit" variant="primary" size="lg" className="w-full md:w-auto">
+                  Submit Help Request
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SubmitHelpRequestPage;
