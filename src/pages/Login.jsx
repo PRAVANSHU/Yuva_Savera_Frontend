@@ -17,6 +17,7 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || "Login failed");
 
@@ -24,11 +25,14 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // notify navbar without full reload (optional)
-      window.dispatchEvent(new Event("auth-change"));
-
-      // go to home
-      window.location.href = "/";
+      // Role-based redirect
+      if (
+        ["core_admin", "district_lead", "moderator"].includes(user.role)
+      ) {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,7 +55,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -63,7 +69,9 @@ const Login = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <input
               type="password"
               value={password}
