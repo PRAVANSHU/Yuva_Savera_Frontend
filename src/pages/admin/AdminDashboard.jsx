@@ -3,10 +3,6 @@ import axios from "axios";
 
 // Core Components
 import CoreDashboard from "./core/CoreDashboard";
-import ManageRequests from "./core/ManageRequests";
-import ManageUsers from "./core/ManageUsers";
-import Reports from "./core/Reports";
-import Settings from "./core/Settings";
 
 // District Components
 import DistrictDashboard from "./district/DistrictDashboard";
@@ -30,7 +26,7 @@ const AdminDashboard = () => {
         if (!token) throw new Error("Not authorized");
 
         const res = await axios.get("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}`},
         });
         setUser(res.data.data.user);
       } catch (err) {
@@ -48,16 +44,7 @@ const AdminDashboard = () => {
 
   switch (user.role) {
     case "core_admin":
-      return (
-        <div className="p-4 space-y-6">
-          <h1 className="text-2xl font-bold mb-4"></h1>
-          <CoreDashboard />
-          <ManageRequests />
-          <ManageUsers />
-          <Reports />
-          <Settings />
-        </div>
-      );
+      return <CoreDashboard />;  
 
     case "district_lead":
       return (
