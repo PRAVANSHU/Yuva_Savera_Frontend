@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import axios from "axios";
 import { motion } from 'framer-motion';
 import { AlertCircle, MapPin, Clock, User, Camera, Upload, CheckCircle } from 'lucide-react';
 import Card from '../components/UI/Card';
@@ -19,6 +20,10 @@ const SubmitHelpRequestPage = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const [submittedRequest, setSubmittedRequest] = useState(null);
+
 
   const categories = [
     'Education',
@@ -38,20 +43,64 @@ const SubmitHelpRequestPage = () => {
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      const checked = (e.target).checked;
+      const checked = e.target.checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitted(true);
-    }, 1000);
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) {
+        alert('File size must be less than 50MB');
+        return;
+      }
+      setVideoFile(file);
+    }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // TODO: Replace with backend API call (send formData + videoFile)
+   try {
+    const data = new FormData();
+    // append all formData fields
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+
+    // append video if exists
+    if (videoFile) {
+      data.append("video", videoFile);
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You are not logged in. Please login first.");
+      return;
+    }
+
+    const res = await axios.post(
+      "http://localhost:5000/api/requests", // ✅ backend route
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+        },
+      }
+    );
+
+    console.log("✅ Request Saved:", res.data);
+    setSubmittedRequest(res.data);
+    setIsSubmitted(true);
+  } catch (error) {
+    console.error("❌ Error submitting request:", error);
+    alert("Error submitting request. Please try again.");
+  }
+};
 
   if (isSubmitted) {
     return (
@@ -67,7 +116,7 @@ const SubmitHelpRequestPage = () => {
           </p>
           <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <p className="text-sm text-blue-800">
-              <strong>Request ID:</strong> YS-2025-{Math.random().toString(36).substr(2, 6).toUpperCase()}
+              <strong>Request ID:</strong> {submittedRequest?.data?.request?.requestId}
             </p>
             <p className="text-sm text-blue-600 mt-2">
               Save this ID for tracking your request status
@@ -76,9 +125,6 @@ const SubmitHelpRequestPage = () => {
           <div className="space-y-3">
             <Button variant="primary" className="w-full">
               Track Request Status
-            </Button>
-            <Button variant="outline" className="w-full">
-              Browse Other Requests
             </Button>
           </div>
         </Card>
@@ -90,27 +136,31 @@ const SubmitHelpRequestPage = () => {
     <div className="bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
-            >
-              Submit a <span className="text-orange-500">Help Request</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-gray-600"
-            >
-              Connect with our community of volunteers who are ready to help. 
-              Describe your situation and we'll match you with the right support.
-            </motion.p>
-          </div>
-        </div>
-      </section>
+  <div className="container mx-auto px-4">
+    <div className="max-w-3xl mx-auto text-center">
+      <motion.h1
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
+      >
+        Submit a <span className="text-orange-500">Help Request</span>
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="text-lg text-gray-600"
+      >
+        Connect with our community of volunteers who are ready to help. 
+        Describe your situation and we'll match you with the right support.
+      </motion.p>
+    </div>
+  </div>
+</section>
+
 
       <div className="container mx-auto px-4 pb-20">
         <div className="max-w-4xl mx-auto">
@@ -242,9 +292,34 @@ const SubmitHelpRequestPage = () => {
                   <p className="text-gray-600 mb-4">
                     A personal video message helps volunteers understand your situation better (Max 2 minutes, 50MB)
                   </p>
-                  <Button type="button" variant="outline">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    ref={fileInputRef}
+                    onChange={handleVideoChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current.click()}
+                  >
                     Choose Video File
                   </Button>
+
+                 {videoFile && (
+  <div className="mt-4 text-sm text-gray-700">
+    <p><strong>Selected:</strong> {videoFile.name}</p>
+    <div className="mt-2 w-full max-h-60 rounded-lg border overflow-hidden bg-black flex items-center justify-center">
+      <video
+        src={URL.createObjectURL(videoFile)}
+        controls
+        className="w-full h-60 object-contain"
+      />
+    </div>
+  </div>
+)}
+
                 </div>
               </div>
 
