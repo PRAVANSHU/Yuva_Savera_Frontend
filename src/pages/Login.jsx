@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 
 const Login = () => {
@@ -25,12 +26,13 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // Role-based redirect
-      if (
-        ["core_admin", "district_lead", "moderator"].includes(user.role)
-      ) {
-        window.location.href = "/admin";
+      // ✅ Role-based redirect
+      if (user.role === "core_admin" || user.role === "district_lead") {
+        window.location.href = "/admin/dashboard";
+      } else if (user.role === "moderator") {
+        window.location.href = "/moderator/dashboard";
       } else {
+        // Normal frontend users (volunteers, partners, etc.)
         window.location.href = "/";
       }
     } catch (err) {

@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
     case "moderator":
       // ✅ redirect to moderator layout instead of stacking all pages
-      return <Navigate to="/moderator" replace />;
+      return <Navigate to="/moderator/dashboard" replace />;
 
     default:
       return <p>You do not have permission to access this page.</p>;

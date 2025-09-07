@@ -1,6 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
+
+// Public pages
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
@@ -17,13 +19,11 @@ import ContactPage from "./pages/ContactPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SubmitStoryPage from "./pages/SubmitStoryPage";
-import ManageStories from "./pages/admin/core/ManageStories";
-
-
 import ReportIssuePage from "./pages/ReportIssuePage";
 
-// Admin dashboards
+// Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageStories from "./pages/admin/core/ManageStories";
 
 // Moderator layout + pages
 import ModeratorDashboardLayout from "./pages/admin/moderator/ModeratorDashboardLayout";
@@ -37,7 +37,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes with frontend Layout */}
+        {/* ================= Public Routes with Layout ================= */}
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
@@ -56,16 +56,13 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="submit-story" element={<SubmitStoryPage />} />
           <Route path="/admin/stories" element={<ManageStories />} />
+          <Route path="/report-issue" element={<ReportIssuePage />} />
 
-                    <Route path="/report-issue" element={<ReportIssuePage />} />
-
-
-
-          {/* Admin route stays inside Layout for now */}
+          {/* ================ Admin Dashboard (Core + District) ================ */}
           <Route
             path="/admin/*"
             element={
-              userInfo && ["core_admin", "district_lead", "moderator"].includes(userInfo.role) ? (
+              userInfo && ["core_admin", "district_lead"].includes(userInfo.role) ? (
                 <AdminDashboard />
               ) : (
                 <Navigate to="/" replace />
@@ -74,9 +71,10 @@ function App() {
           />
         </Route>
 
-        
+        {/* ================ Moderator Routes (outside Layout) ================ */}
+        {/* redirect plain /moderator → /moderator/dashboard */}
+        <Route path="/moderator" element={<Navigate to="/moderator/dashboard" replace />} />
 
-        {/* Moderator routes OUTSIDE Layout (no frontend navbar) */}
         <Route
           path="/moderator/*"
           element={
@@ -87,7 +85,7 @@ function App() {
             )
           }
         >
-          <Route index element={<ModeratorDashboard />} />
+          <Route path="dashboard" element={<ModeratorDashboard />} />
           <Route path="content" element={<ContentApproval />} />
           <Route path="reported" element={<ReportedContent />} />
         </Route>
