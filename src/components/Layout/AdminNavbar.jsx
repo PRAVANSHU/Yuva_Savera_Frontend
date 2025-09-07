@@ -1,3 +1,4 @@
+// src/components/AdminNavbar.jsx
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,7 +20,10 @@ const AdminNavbar = () => {
 
   const userInfo = safeParse(localStorage.getItem("userInfo"));
 
-  // ✅ Dynamic heading based on role
+  // basePath determines where the logo/title should link
+  const basePath =
+    userInfo?.role === "moderator" ? "/moderator" : "/admin";
+
   const getAdminTitle = () => {
     if (!userInfo) return "Admin Panel";
     switch (userInfo.role) {
@@ -41,7 +45,6 @@ const AdminNavbar = () => {
     navigate("/login");
   };
 
-  // ✅ Dashboard navigation items based on role
   const getDashboardTabs = () => {
     if (!userInfo) return [];
 
@@ -53,10 +56,13 @@ const AdminNavbar = () => {
           { name: "Case Tracking", path: "/admin/cases" },
           { name: "Manage Users", path: "/admin/users" },
           { name: "Volunteers", path: "/admin/volunteers" },
+              { name: "Manage Moderators", path: "/admin/moderators" }, 
+          { name: "Manage Stories", path: "/admin/stories" },
           { name: "Reports", path: "/admin/reports" },
           { name: "Notifications", path: "/admin/notifications" },
           { name: "Settings", path: "/admin/settings" },
         ];
+
       case "district_lead":
       case "district_admin":
         return [
@@ -67,12 +73,15 @@ const AdminNavbar = () => {
           { name: "Reports", path: "/admin/reports" },
           { name: "Settings", path: "/admin/settings" },
         ];
+
       case "moderator":
+        // 🔁 IMPORTANT: use /moderator/* here (matches your App routes)
         return [
-          { name: "Dashboard", path: "/admin/dashboard" },
-          { name: "Manage Requests", path: "/admin/requests" },
-          { name: "Reports", path: "/admin/reports" },
+          { name: "Dashboard", path: "/moderator/dashboard" },
+          { name: "Content Approval", path: "/moderator/content" },
+          { name: "Reported Content", path: "/moderator/reported" },
         ];
+
       default:
         return [];
     }
@@ -80,12 +89,15 @@ const AdminNavbar = () => {
 
   const dashboardTabs = getDashboardTabs();
 
+  const isActive = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
+
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          {/* Dynamic Heading */}
-          <Link to="/admin" className="text-2xl font-bold text-gray-800">
+          {/* Title should link to the correct root */}
+          <Link to={basePath} className="text-2xl font-bold text-gray-800">
             {getAdminTitle()}
           </Link>
 
@@ -96,7 +108,7 @@ const AdminNavbar = () => {
                 key={item.path}
                 to={item.path}
                 className={`text-sm font-medium transition-colors duration-200 ${
-                  location.pathname === item.path
+                  isActive(item.path)
                     ? "text-orange-500"
                     : "text-gray-700 hover:text-orange-500"
                 }`}
@@ -162,7 +174,7 @@ const AdminNavbar = () => {
                     to={item.path}
                     onClick={() => setIsOpen(false)}
                     className={`block px-4 py-2 text-sm rounded-md ${
-                      location.pathname === item.path
+                      isActive(item.path)
                         ? "text-orange-500 bg-gray-100"
                         : "text-gray-700 hover:text-orange-500"
                     }`}

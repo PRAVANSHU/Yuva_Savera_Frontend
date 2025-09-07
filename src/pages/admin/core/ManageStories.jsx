@@ -31,7 +31,7 @@ const ManageStories = () => {
   const handleAction = async (id, action) => {
     try {
       const res = await axios.patch(
-        `/api/stories/admin/${id}/status`,
+        `/api/stories/${id}/status`,
         { action },
         { headers: { Authorization: `Bearer ${token}` } }
       );
