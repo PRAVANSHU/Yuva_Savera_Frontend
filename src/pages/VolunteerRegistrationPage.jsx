@@ -16,7 +16,8 @@ const VolunteerRegistrationPage = () => {
     availability: '',
     experience: '',
     motivation: '',
-    idProof: null // Added for file upload
+    idProof: null,
+    idProofType: '' // ✅ Added for dropdown
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -59,7 +60,7 @@ const VolunteerRegistrationPage = () => {
   const handleSkillToggle = (skill) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.includes(skill) 
+      skills: prev.skills.includes(skill)
         ? prev.skills.filter(s => s !== skill)
         : [...prev.skills, skill]
     }));
@@ -78,15 +79,13 @@ const VolunteerRegistrationPage = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
         setUploadError('Please upload a valid file (JPEG, JPG, PNG, or PDF)');
         return;
       }
 
-      // Validate file size (5MB limit)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         setUploadError('File size must be less than 5MB');
         return;
@@ -97,15 +96,13 @@ const VolunteerRegistrationPage = () => {
     }
   };
 
-  // Remove uploaded file
   const removeFile = () => {
-    setFormData(prev => ({ ...prev, idProof: null }));
+    setFormData(prev => ({ ...prev, idProof: null, idProofType: '' }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  // Trigger file input click
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
@@ -115,10 +112,8 @@ const VolunteerRegistrationPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Create FormData for multipart/form-data
       const submitData = new FormData();
-      
-      // Append all form fields
+
       submitData.append('name', formData.name);
       submitData.append('email', formData.email);
       submitData.append('phone', formData.phone);
@@ -129,17 +124,15 @@ const VolunteerRegistrationPage = () => {
       submitData.append('availability', formData.availability);
       submitData.append('experience', formData.experience);
       submitData.append('motivation', formData.motivation);
-      
-      // Append file if exists
+
       if (formData.idProof) {
         submitData.append('idProof', formData.idProof);
+        submitData.append('idProofType', formData.idProofType); // ✅ send type
       }
 
-      // Replace 'YOUR_BACKEND_URL' with your actual backend endpoint
       const response = await fetch('http://localhost:5000/api/volunteer/register', {
         method: 'POST',
-        body: submitData,
-        // Don't set Content-Type header - let browser set it with boundary for FormData
+        body: submitData
       });
 
       if (!response.ok) {
@@ -317,22 +310,20 @@ const VolunteerRegistrationPage = () => {
                     </div>
 
                     <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    <Lock className="w-4 h-4 inline mr-2" />
-    Password *
-  </label>
-  <input
-    type="password"
-    name="password"
-    value={formData.password}
-    onChange={handleInputChange}
-    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    placeholder="Create a password"
-    required
-  />
-</div>
-
-                    
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Lock className="w-4 h-4 inline mr-2" />
+                        Password *
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Create a password"
+                        required
+                      />
+                    </div>
                   </div>
 
                   {/* File Upload Section */}
@@ -382,6 +373,25 @@ const VolunteerRegistrationPage = () => {
                             <X className="w-4 h-4" />
                           </button>
                         </div>
+
+                        {/* ✅ Dropdown for ID Proof Type */}
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Select ID Proof Type *
+                          </label>
+                          <select
+                            name="idProofType"
+                            value={formData.idProofType}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="">-- Select --</option>
+                            <option value="aadhaar">Aadhaar</option>
+                            <option value="passport">Passport</option>
+                            <option value="driving_license">Driving License</option>
+                          </select>
+                        </div>
                       </div>
                     )}
                     
@@ -395,14 +405,16 @@ const VolunteerRegistrationPage = () => {
                       type="button" 
                       variant="primary" 
                       onClick={() => setCurrentStep(2)}
-                      disabled={!formData.name || !formData.email || !formData.phone || !formData.location || !formData.password}
+                      disabled={
+                        !formData.name || !formData.email || !formData.phone || !formData.location || !formData.password ||
+                        (formData.idProof && !formData.idProofType) // ✅ must select type if file uploaded
+                      }
                     >
                       Next: Skills & Interests
                     </Button>
                   </div>
                 </motion.div>
               )}
-
               {/* Step 2: Skills & Interests */}
               {currentStep === 2 && (
                 <motion.div

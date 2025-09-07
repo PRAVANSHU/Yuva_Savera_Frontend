@@ -8,7 +8,7 @@ const SubmitStoryPage = () => {
     category: "Education",
     volunteerName: "",
     helpSeekerName: "",
-    impactMetrics: ""
+    impactMetrics: "",
   });
   const [beforeImage, setBeforeImage] = useState(null);
   const [afterImage, setAfterImage] = useState(null);
@@ -26,32 +26,40 @@ const SubmitStoryPage = () => {
 
     try {
       const token = localStorage.getItem("token");
+
+      // Prepare FormData with text + files
       const data = new FormData();
       Object.keys(formData).forEach((key) => data.append(key, formData[key]));
       if (beforeImage) data.append("beforeImage", beforeImage);
       if (afterImage) data.append("afterImage", afterImage);
 
-      await axios.post("/api/stories", data, {
+      await axios.post("http://localhost:5000/api/stories", data, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-        }
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
       });
 
       setMessage("✅ Story submitted successfully and is pending approval.");
+
+      // Reset form
       setFormData({
         title: "",
         description: "",
         category: "Education",
         volunteerName: "",
         helpSeekerName: "",
-        impactMetrics: ""
+        impactMetrics: "",
       });
       setBeforeImage(null);
       setAfterImage(null);
+      e.target.reset(); // reset file inputs
     } catch (error) {
       console.error("Error submitting story:", error.response?.data || error.message);
-      setMessage("❌ Failed to submit story.");
+      setMessage(
+        "❌ Failed to submit story. " +
+          (error.response?.data?.message || error.message)
+      );
     } finally {
       setLoading(false);
     }
@@ -59,13 +67,19 @@ const SubmitStoryPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Submit Your Success Story</h1>
-      <p className="text-center text-gray-600 mb-8">Share your inspiring story of making a difference</p>
+      <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
+        Submit Your Success Story
+      </h1>
+      <p className="text-center text-gray-600 mb-8">
+        Share your inspiring story of making a difference
+      </p>
 
       {message && (
         <div
           className={`p-3 mb-6 rounded-md ${
-            message.includes("✅") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+            message.includes("✅")
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
           }`}
         >
           {message}
@@ -76,7 +90,9 @@ const SubmitStoryPage = () => {
         {/* Title + Category */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Title</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Title
+            </label>
             <input
               type="text"
               name="title"
@@ -89,7 +105,9 @@ const SubmitStoryPage = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Category</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Category
+            </label>
             <select
               name="category"
               value={formData.category}
@@ -108,7 +126,9 @@ const SubmitStoryPage = () => {
 
         {/* Description */}
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Description</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Description
+          </label>
           <textarea
             name="description"
             placeholder="Describe your success story in detail"
@@ -124,7 +144,9 @@ const SubmitStoryPage = () => {
         {/* Volunteer + Beneficiary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Volunteer Name</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Volunteer Name
+            </label>
             <input
               type="text"
               name="volunteerName"
@@ -136,7 +158,9 @@ const SubmitStoryPage = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Beneficiary Name</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Beneficiary Name
+            </label>
             <input
               type="text"
               name="helpSeekerName"
@@ -151,7 +175,9 @@ const SubmitStoryPage = () => {
 
         {/* Impact */}
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Impact Metrics</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Impact Metrics
+          </label>
           <input
             type="text"
             name="impactMetrics"
@@ -166,23 +192,33 @@ const SubmitStoryPage = () => {
         {/* Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Before Image</label>
-            <input 
-              type="file" 
-              onChange={(e) => setBeforeImage(e.target.files[0])} 
-              required 
+            <label className="block text-gray-700 font-medium mb-2">
+              Before Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setBeforeImage(e.target.files[0])}
+              required
               disabled={loading}
-              className={`w-full border border-gray-300 p-3 rounded-md ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`w-full border border-gray-300 p-3 rounded-md ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium mb-2">After Image</label>
-            <input 
-              type="file" 
-              onChange={(e) => setAfterImage(e.target.files[0])} 
-              required 
+            <label className="block text-gray-700 font-medium mb-2">
+              After Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setAfterImage(e.target.files[0])}
+              required
               disabled={loading}
-              className={`w-full border border-gray-300 p-3 rounded-md ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`w-full border border-gray-300 p-3 rounded-md ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             />
           </div>
         </div>
@@ -199,9 +235,25 @@ const SubmitStoryPage = () => {
         >
           {loading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Submitting...
             </>
