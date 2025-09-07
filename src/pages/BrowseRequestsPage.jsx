@@ -39,12 +39,12 @@ const BrowseRequestsPage = () => {
     fetchRequests();
   }, []);
 
-  const filteredRequests = requests.filter(request =>
-    request.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (categoryFilter === '' || request.category === categoryFilter) &&
-    (locationFilter === '' || request.location.toLowerCase().includes(locationFilter.toLowerCase())) &&
-    (urgencyFilter === '' || request.urgencyLevel === urgencyFilter)
-  );
+const filteredRequests = requests.filter(request =>
+  request.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+  (categoryFilter === '' || request.category === categoryFilter) &&
+  (locationFilter === '' || request.location?.toLowerCase().includes(locationFilter.toLowerCase())) &&
+  (urgencyFilter === '' || request.urgencyLevel === urgencyFilter)
+);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -162,11 +162,19 @@ const BrowseRequestsPage = () => {
     <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
       <div className="flex items-center">
         <MapPin className="w-3 h-3 mr-1" />
-        {request.location}
+        {request.location
+  ? [request.location.address, request.location.city]
+      .filter(Boolean) // remove null/undefined/empty values
+      .join(', ')
+  : 'Location not available'}
       </div>
       <div className="flex items-center">
         <User className="w-3 h-3 mr-1" />
-        {request.submittedBy}
+        {request.submittedBy
+      ? (request.submittedBy.anonymous
+          ? "Anonymous"
+          : request.submittedBy.name)
+      : "Unknown"}
       </div>
       <div className="flex items-center col-span-2">
         <Clock className="w-3 h-3 mr-1" />

@@ -8,7 +8,16 @@ const AdminNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+
+  const safeParse = (value) => {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  };
+
+  const userInfo = safeParse(localStorage.getItem("userInfo"));
 
   // ✅ Dynamic heading based on role
   const getAdminTitle = () => {
@@ -17,7 +26,8 @@ const AdminNavbar = () => {
       case "core_admin":
         return "Core Admin Dashboard";
       case "district_lead":
-        return "District Lead Dashboard";
+      case "district_admin":
+        return "District Admin Dashboard";
       case "moderator":
         return "Moderator Dashboard";
       default:
@@ -31,33 +41,44 @@ const AdminNavbar = () => {
     navigate("/login");
   };
 
-  // ✅ Base navigation items (for core & district admins)
-  let dashboardTabs = [
-    { name: "Manage Requests", path: "/admin/requests" },
-    { name: "Manage Users", path: "/admin/users" },
-    { name: "Reports", path: "/admin/reports" },
-    { name: "Settings", path: "/admin/settings" },
-  ];
+  // ✅ Dashboard navigation items based on role
+  const getDashboardTabs = () => {
+    if (!userInfo) return [];
 
-  // ✅ Add Manage Moderators only if Core Admin
-  if (userInfo?.role === "core_admin") {
-    dashboardTabs.splice(1, 0, { name: "Manage Moderators", path: "/admin/moderators" });
-  }
+    switch (userInfo.role) {
+      case "core_admin":
+        return [
+          { name: "Dashboard", path: "/admin/dashboard" },
+          { name: "Manage Requests", path: "/admin/requests" },
+          { name: "Case Tracking", path: "/admin/cases" },
+          { name: "Manage Users", path: "/admin/users" },
+          { name: "Volunteers", path: "/admin/volunteers" },
+          { name: "Reports", path: "/admin/reports" },
+          { name: "Notifications", path: "/admin/notifications" },
+          { name: "Settings", path: "/admin/settings" },
+        ];
+      case "district_lead":
+      case "district_admin":
+        return [
+          { name: "Dashboard", path: "/admin/dashboard" },
+          { name: "Manage Requests", path: "/admin/requests" },
+          { name: "Case Tracking", path: "/admin/cases" },
+          { name: "Volunteers", path: "/admin/volunteers" },
+          { name: "Reports", path: "/admin/reports" },
+          { name: "Settings", path: "/admin/settings" },
+        ];
+      case "moderator":
+        return [
+          { name: "Dashboard", path: "/admin/dashboard" },
+          { name: "Manage Requests", path: "/admin/requests" },
+          { name: "Reports", path: "/admin/reports" },
+        ];
+      default:
+        return [];
+    }
+  };
 
-  // ✅ Add Manage Stories for Core Admin
-if (userInfo?.role === "core_admin") {
-  dashboardTabs.splice(2, 0, { name: "Manage Stories", path: "/admin/stories" });
-}
-
-
-  // ✅ Moderator-specific navigation
-  if (userInfo?.role === "moderator") {
-    dashboardTabs = [
-      { name: "Dashboard", path: "/moderator" },
-      { name: "Content Approval", path: "/moderator/content" },
-      { name: "Reported Content", path: "/moderator/reported" },
-    ];
-  }
+  const dashboardTabs = getDashboardTabs();
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">

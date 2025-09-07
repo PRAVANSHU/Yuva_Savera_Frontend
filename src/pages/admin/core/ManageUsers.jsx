@@ -8,10 +8,11 @@ const ManageUsers = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/admin/users", {
+      const res = await axios.get("http://localhost:5000/api/admin/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(res.data.users || []);
+      console.log("🔍 API Response:", res.data);
+      setUsers(res.data.users || res.data.data?.users || []);
     } catch (error) {
       console.error("Error fetching users:", error.response?.data || error.message);
     } finally {
@@ -23,7 +24,7 @@ const ManageUsers = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `/api/admin/users/${id}/status`,
+        `http://localhost:5000/api/admin/users/${id}/status`,
         { isActive: !isActive },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -41,20 +42,20 @@ const ManageUsers = () => {
   if (!users.length) return <p>No users found.</p>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="w-full border-collapse border border-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-orange-500">
           <tr>
-            <th className="border px-4 py-2 text-left">Name</th>
-            <th className="border px-4 py-2 text-left">Email</th>
-            <th className="border px-4 py-2 text-left">Role</th>
-            <th className="border px-4 py-2 text-left">Active</th>
-            <th className="border px-4 py-2 text-left">Actions</th>
+            <th className="border px-4 py-2 text-left text-white font-semibold">Name</th>
+            <th className="border px-4 py-2 text-left text-white font-semibold">Email</th>
+            <th className="border px-4 py-2 text-left text-white font-semibold">Role</th>
+            <th className="border px-4 py-2 text-left text-white font-semibold">Active</th>
+            <th className="border px-4 py-2 text-left text-white font-semibold">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-200">
           {users.map((user) => (
-            <tr key={user._id}>
+            <tr key={user._id} className="hover:bg-gray-50">
               <td className="border px-4 py-2">{user.name}</td>
               <td className="border px-4 py-2">{user.email}</td>
               <td className="border px-4 py-2 capitalize">{user.role}</td>

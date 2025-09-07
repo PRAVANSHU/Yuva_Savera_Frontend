@@ -32,11 +32,28 @@ const ContactPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setTimeout(() => {
-      setIsSubmitted(true);
-    }, 1000);
+    try {
+      const response = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsSubmitted(true);
+      } else {
+        alert("❌ Failed to send: " + (data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong. Please try again later.");
+    }
   };
 
   if (isSubmitted) {
@@ -48,8 +65,7 @@ const ContactPage = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Message Sent Successfully!</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for reaching out to us! We've received your message and our team will 
-            get back to you within 24-48 hours.
+            Thank you for reaching out to us! We've received your message and our team will get back to you within 24-48 hours.
           </p>
           <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <p className="text-sm text-blue-800">
@@ -60,9 +76,7 @@ const ContactPage = () => {
             </p>
           </div>
           <div className="space-y-3">
-            <Button variant="primary" className="w-full">
-              Visit Help Center
-            </Button>
+            <Button variant="primary" className="w-full">Visit Help Center</Button>
             <Button variant="outline" className="w-full" onClick={() => setIsSubmitted(false)}>
               Send Another Message
             </Button>
@@ -91,8 +105,7 @@ const ContactPage = () => {
               transition={{ delay: 0.2 }}
               className="text-xl text-gray-600 leading-relaxed"
             >
-              Have questions, suggestions, or want to learn more about Yuva Savera? 
-              We'd love to hear from you and help in any way we can.
+              Have questions, suggestions, or want to learn more about Yuva Savera? We'd love to hear from you and help in any way we can.
             </motion.p>
           </div>
         </div>
@@ -161,16 +174,13 @@ const ContactPage = () => {
               <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Support</h3>
               <div className="space-y-3">
                 <Button variant="outline" className="w-full justify-start">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Live Chat Support
+                  <MessageSquare className="w-4 h-4 mr-2" /> Live Chat Support
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Phone className="w-4 h-4 mr-2" />
-                  WhatsApp Support
+                  <Phone className="w-4 h-4 mr-2" /> WhatsApp Support
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Email Support
+                  <Mail className="w-4 h-4 mr-2" /> Email Support
                 </Button>
               </div>
             </Card>
@@ -180,13 +190,10 @@ const ContactPage = () => {
           <div className="lg:col-span-2">
             <Card>
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Send us a Message</h2>
-              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                     <input
                       type="text"
                       name="name"
@@ -199,9 +206,7 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
                     <input
                       type="email"
                       name="email"
@@ -214,9 +219,7 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number (Optional)
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number (Optional)</label>
                     <input
                       type="tel"
                       name="phone"
@@ -228,9 +231,7 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
                     <select
                       name="category"
                       value={formData.category}
@@ -246,9 +247,7 @@ const ContactPage = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Subject *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
                     <input
                       type="text"
                       name="subject"
@@ -262,9 +261,7 @@ const ContactPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
                   <textarea
                     name="message"
                     value={formData.message}
@@ -277,22 +274,16 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    className="text-blue-600 focus:ring-blue-500 mt-1"
-                    required
-                  />
+                  <input type="checkbox" className="text-blue-600 focus:ring-blue-500 mt-1" required />
                   <span className="text-sm text-gray-700">
-                    I agree to Yuva Savera's 
-                    <a href="#" className="text-blue-600 hover:underline mx-1">Privacy Policy</a> 
-                    and consent to being contacted regarding this inquiry
+                    I agree to Yuva Savera's <a href="#" className="text-blue-600 hover:underline mx-1">Privacy Policy</a> and consent to being contacted regarding this inquiry
                   </span>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="primary" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
                   icon={Send}
                   className="w-full md:w-auto"
                 >
@@ -308,32 +299,28 @@ const ContactPage = () => {
                 <div className="border-b border-gray-200 pb-4">
                   <h4 className="font-semibold text-gray-800 mb-2">How quickly do you respond to inquiries?</h4>
                   <p className="text-sm text-gray-600">
-                    We typically respond to all inquiries within 24-48 hours during business days. 
-                    Urgent matters are prioritized and may receive faster responses.
+                    We typically respond to all inquiries within 24-48 hours during business days. Urgent matters are prioritized and may receive faster responses.
                   </p>
                 </div>
 
                 <div className="border-b border-gray-200 pb-4">
                   <h4 className="font-semibold text-gray-800 mb-2">Can I visit your office in person?</h4>
                   <p className="text-sm text-gray-600">
-                    Yes! We welcome visitors during our office hours. We recommend scheduling 
-                    an appointment in advance to ensure someone is available to meet with you.
+                    Yes! We welcome visitors during our office hours. We recommend scheduling an appointment in advance to ensure someone is available to meet with you.
                   </p>
                 </div>
 
                 <div className="border-b border-gray-200 pb-4">
                   <h4 className="font-semibold text-gray-800 mb-2">Do you have regional offices?</h4>
                   <p className="text-sm text-gray-600">
-                    Currently, we operate primarily from our New Delhi headquarters, but we're 
-                    expanding to other major cities. Contact us to learn about local coordinators in your area.
+                    Currently, we operate primarily from our New Delhi headquarters, but we're expanding to other major cities. Contact us to learn about local coordinators in your area.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-2">How can I report urgent issues?</h4>
                   <p className="text-sm text-gray-600">
-                    For urgent matters, call our helpline directly at +91-1800-123-4567 or 
-                    use the "Emergency" category in the contact form above.
+                    For urgent matters, call our helpline directly at +91-1800-123-4567 or use the "Emergency" category in the contact form above.
                   </p>
                 </div>
               </div>

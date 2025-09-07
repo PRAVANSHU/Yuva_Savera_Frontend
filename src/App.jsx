@@ -20,6 +20,7 @@ import SubmitStoryPage from "./pages/SubmitStoryPage";
 import ManageStories from "./pages/admin/core/ManageStories";
 
 
+import ReportIssuePage from "./pages/ReportIssuePage";
 
 // Admin dashboards
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -56,7 +57,8 @@ function App() {
           <Route path="submit-story" element={<SubmitStoryPage />} />
           <Route path="/admin/stories" element={<ManageStories />} />
 
-          
+                    <Route path="/report-issue" element={<ReportIssuePage />} />
+
 
 
           {/* Admin route stays inside Layout for now */}
