@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios"; // <-- make sure it's imported
 import Card from "../../../components/UI/Card";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts";
 
@@ -15,36 +16,39 @@ const Dashboard = () => {
   const [trendData, setTrendData] = useState([]);
   const [activity, setActivity] = useState([]);
 
+  // ✅ Map raw status → friendly labels
+  const STATUS_LABELS = {
+    pending: "Pending",
+    resolved: "Resolved",
+    rejected: "Rejected",
+    in_progress: "In Progress",
+  };
+
   useEffect(() => {
-    // TODO: Fetch from API (backend routes needed)
-    // Example static data for now
-    setStats({
-      totalRequests: 120,
-      pending: 35,
-      resolved: 70,
-      users: 50,
-      volunteers: 20,
-    });
+    const fetchDashboard = async () => {
+      try {
+        const res = await axios.get("/api/dashboard", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
 
-    setStatusData([
-      { name: "Pending", value: 35 },
-      { name: "Resolved", value: 70 },
-      { name: "Rejected", value: 10 },
-      { name: "In Progress", value: 5 },
-    ]);
+        let { stats, statusData, trendData, activity } = res.data.data;
 
-    setTrendData([
-      { month: "Jan", requests: 20 },
-      { month: "Feb", requests: 35 },
-      { month: "Mar", requests: 25 },
-      { month: "Apr", requests: 40 },
-    ]);
+        // ✅ Format status labels for charts
+        statusData = statusData.map(s => ({
+          name: STATUS_LABELS[s.name?.toLowerCase()] || s.name,
+          value: s.value,
+        }));
 
-    setActivity([
-      "Volunteer John approved",
-      "Request #123 assigned to District Admin",
-      "Moderator Jane resolved case #110",
-    ]);
+        setStats(stats);
+        setStatusData(statusData);
+        setTrendData(trendData);
+        setActivity(activity);
+      } catch (err) {
+        console.error("❌ Dashboard fetch error:", err);
+      }
+    };
+
+    fetchDashboard();
   }, []);
 
   const COLORS = ["#f97316", "#22c55e", "#ef4444", "#3b82f6"];
@@ -63,40 +67,40 @@ const Dashboard = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-4">
-            <h3 className="font-semibold mb-2">Requests by Status</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={100}>
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <h3 className="font-semibold mb-2">Requests by Status</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={100}>
+                {statusData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </Card>
 
         <Card className="p-4">
-            <h3 className="font-semibold mb-2">Requests Trend</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={trendData}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="requests" fill="#f97316" />
-              </BarChart>
-            </ResponsiveContainer>
+          <h3 className="font-semibold mb-2">Requests Trend</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={trendData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="requests" fill="#f97316" />
+            </BarChart>
+          </ResponsiveContainer>
         </Card>
       </div>
 
       {/* Recent Activity */}
       <Card className="p-4">
-          <h3 className="font-semibold mb-2">Recent Activity</h3>
-          <ul className="list-disc ml-5">
-            {activity.map((log, idx) => (
-              <li key={idx}>{log}</li>
-            ))}
-          </ul>
+        <h3 className="font-semibold mb-2">Recent Activity</h3>
+        <ul className="list-disc ml-5">
+          {activity.map((log, idx) => (
+            <li key={idx}>{log}</li>
+          ))}
+        </ul>
       </Card>
     </div>
   );

@@ -14,7 +14,7 @@ const BrowseRequestsPage = () => {
   const [videoModal, setVideoModal] = useState({ open: false, url: '' });
 
   const categories = ['Education', 'Healthcare', 'Employment', 'Counseling', 'Emergency'];
-  const locations = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad'];
+  const locations = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Navi Mumbai', 'Gurgaon'];
   const urgencyLevels = ['Low', 'Medium', 'High', 'Critical'];
 
   const getUrgencyColor = (urgency) => {
@@ -39,12 +39,18 @@ const BrowseRequestsPage = () => {
     fetchRequests();
   }, []);
 
-const filteredRequests = requests.filter(request =>
-  request.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-  (categoryFilter === '' || request.category === categoryFilter) &&
-  (locationFilter === '' || request.location?.toLowerCase().includes(locationFilter.toLowerCase())) &&
-  (urgencyFilter === '' || request.urgencyLevel === urgencyFilter)
-);
+const filteredRequests = requests.filter(request => {
+  const locationText = request.location
+    ? [request.location.address, request.location.city].filter(Boolean).join(', ')
+    : '';
+
+  return (
+    request.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (categoryFilter === '' || request.category === categoryFilter) &&
+    (locationFilter === '' || locationText.toLowerCase().includes(locationFilter.toLowerCase())) &&
+    (urgencyFilter === '' || request.urgencyLevel === urgencyFilter)
+  );
+});
 
   return (
     <div className="bg-gray-50 min-h-screen">

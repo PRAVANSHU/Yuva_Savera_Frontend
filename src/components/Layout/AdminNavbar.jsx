@@ -59,8 +59,6 @@ const AdminNavbar = () => {
               { name: "Manage Moderators", path: "/admin/moderators" }, 
           { name: "Manage Stories", path: "/admin/stories" },
           { name: "Reports", path: "/admin/reports" },
-          { name: "Notifications", path: "/admin/notifications" },
-          { name: "Settings", path: "/admin/settings" },
         ];
 
       case "district_lead":

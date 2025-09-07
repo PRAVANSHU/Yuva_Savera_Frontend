@@ -98,7 +98,7 @@ const toggleActive = async (id, currentActive) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/volunteer",
+        "http://localhost:5000/api/volunteer/add",
         newVolunteer,
         { headers: { Authorization: `Bearer ${token}` } }
       );
