@@ -33,7 +33,7 @@ const Login = () => {
         window.location.href = "/moderator/dashboard";
       } else {
         // Normal frontend users (volunteers, partners, etc.)
-        window.location.href = "/";
+        window.location.href = "/dashboard";
       }
     } catch (err) {
       setError(err.message);
