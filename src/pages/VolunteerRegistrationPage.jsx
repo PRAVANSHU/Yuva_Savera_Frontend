@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Star, Upload, CheckCircle, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Star, Upload, CheckCircle, X, Lock } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 
@@ -10,6 +10,7 @@ const VolunteerRegistrationPage = () => {
     email: '',
     phone: '',
     location: '',
+    password: '',
     skills: [],
     causes: [],
     availability: '',
@@ -122,6 +123,7 @@ const VolunteerRegistrationPage = () => {
       submitData.append('email', formData.email);
       submitData.append('phone', formData.phone);
       submitData.append('location', formData.location);
+      submitData.append('password', formData.password);
       submitData.append('skills', JSON.stringify(formData.skills));
       submitData.append('causes', JSON.stringify(formData.causes));
       submitData.append('availability', formData.availability);
@@ -313,6 +315,24 @@ const VolunteerRegistrationPage = () => {
                         required
                       />
                     </div>
+
+                    <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    <Lock className="w-4 h-4 inline mr-2" />
+    Password *
+  </label>
+  <input
+    type="password"
+    name="password"
+    value={formData.password}
+    onChange={handleInputChange}
+    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Create a password"
+    required
+  />
+</div>
+
+                    
                   </div>
 
                   {/* File Upload Section */}
@@ -375,7 +395,7 @@ const VolunteerRegistrationPage = () => {
                       type="button" 
                       variant="primary" 
                       onClick={() => setCurrentStep(2)}
-                      disabled={!formData.name || !formData.email || !formData.phone || !formData.location}
+                      disabled={!formData.name || !formData.email || !formData.phone || !formData.location || !formData.password}
                     >
                       Next: Skills & Interests
                     </Button>
