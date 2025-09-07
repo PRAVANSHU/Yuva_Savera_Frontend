@@ -4,6 +4,7 @@ import ManageRequests from "./ManageRequests";
 import ManageUsers from "./ManageUsers";
 import Reports from "./Reports";
 import Settings from "./Settings";
+import ManageModerators from "./ManageModerators";
 
 const CoreDashboard = () => {
   return (
@@ -13,8 +14,10 @@ const CoreDashboard = () => {
           <Route path="/" element={<Navigate to="requests" replace />} />
           <Route path="requests" element={<ManageRequests />} />
           <Route path="users" element={<ManageUsers />} />
+          <Route path="moderators" element={<ManageModerators />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
+          
         </Routes>
       </main>
     </div>

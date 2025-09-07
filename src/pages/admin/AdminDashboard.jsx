@@ -1,4 +1,6 @@
+// src/pages/admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
 
 // Core Components
@@ -9,11 +11,6 @@ import DistrictDashboard from "./district/DistrictDashboard";
 import DistrictRequests from "./district/DistrictRequests";
 import Volunteers from "./district/Volunteers";
 import DistrictReports from "./district/DistrictReports";
-
-// Moderator Components
-import ModeratorDashboard from "./moderator/ModeratorDashboard";
-import ContentApproval from "./moderator/ContentApproval";
-import ReportedContent from "./moderator/ReportedContent";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -26,7 +23,7 @@ const AdminDashboard = () => {
         if (!token) throw new Error("Not authorized");
 
         const res = await axios.get("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}`},
+          headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data.data.user);
       } catch (err) {
@@ -44,7 +41,7 @@ const AdminDashboard = () => {
 
   switch (user.role) {
     case "core_admin":
-      return <CoreDashboard />;  
+      return <CoreDashboard />;
 
     case "district_lead":
       return (
@@ -58,14 +55,8 @@ const AdminDashboard = () => {
       );
 
     case "moderator":
-      return (
-        <div className="p-4 space-y-6">
-          <h1 className="text-2xl font-bold mb-4">Moderator Dashboard</h1>
-          <ModeratorDashboard />
-          <ContentApproval />
-          <ReportedContent />
-        </div>
-      );
+      // ✅ redirect to moderator layout instead of stacking all pages
+      return <Navigate to="/moderator" replace />;
 
     default:
       return <p>You do not have permission to access this page.</p>;

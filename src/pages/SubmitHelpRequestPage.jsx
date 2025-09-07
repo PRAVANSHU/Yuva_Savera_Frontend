@@ -21,9 +21,9 @@ const SubmitHelpRequestPage = () => {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const fileInputRef = useRef(null);
   const [submittedRequest, setSubmittedRequest] = useState(null);
-
 
   const categories = [
     'Education',
@@ -63,44 +63,48 @@ const SubmitHelpRequestPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Replace with backend API call (send formData + videoFile)
-   try {
-    const data = new FormData();
-    // append all formData fields
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
+    setIsLoading(true); // Start loading
+    
+    try {
+      const data = new FormData();
+      // append all formData fields
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
 
-    // append video if exists
-    if (videoFile) {
-      data.append("video", videoFile);
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You are not logged in. Please login first.");
-      return;
-    }
-
-    const res = await axios.post(
-      "http://localhost:5000/api/requests", // ✅ backend route
-      data,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-        },
+      // append video if exists
+      if (videoFile) {
+        data.append("video", videoFile);
       }
-    );
 
-    console.log("✅ Request Saved:", res.data);
-    setSubmittedRequest(res.data);
-    setIsSubmitted(true);
-  } catch (error) {
-    console.error("❌ Error submitting request:", error);
-    alert("Error submitting request. Please try again.");
-  }
-};
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You are not logged in. Please login first.");
+        setIsLoading(false);
+        return;
+      }
+
+      const res = await axios.post(
+        "http://localhost:5000/api/requests", // ✅ backend route
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      console.log("✅ Request Saved:", res.data);
+      setSubmittedRequest(res.data);
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("❌ Error submitting request:", error);
+      alert("Error submitting request. Please try again.");
+    } finally {
+      setIsLoading(false); // Stop loading regardless of success or failure
+    }
+  };
 
   if (isSubmitted) {
     return (
@@ -136,31 +140,30 @@ const SubmitHelpRequestPage = () => {
     <div className="bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12">
-  <div className="container mx-auto px-4">
-    <div className="max-w-3xl mx-auto text-center">
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
-      >
-        Submit a <span className="text-orange-500">Help Request</span>
-      </motion.h1>
-      <motion.p
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-lg text-gray-600"
-      >
-        Connect with our community of volunteers who are ready to help. 
-        Describe your situation and we'll match you with the right support.
-      </motion.p>
-    </div>
-  </div>
-</section>
-
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
+            >
+              Submit a <span className="text-orange-500">Help Request</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg text-gray-600"
+            >
+              Connect with our community of volunteers who are ready to help. 
+              Describe your situation and we'll match you with the right support.
+            </motion.p>
+          </div>
+        </div>
+      </section>
 
       <div className="container mx-auto px-4 pb-20">
         <div className="max-w-4xl mx-auto">
@@ -199,6 +202,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Brief title describing what help you need"
                       required
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -214,6 +218,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Please provide detailed information about your situation, what kind of help you need, and any specific requirements..."
                       required
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -227,6 +232,7 @@ const SubmitHelpRequestPage = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       required
+                      disabled={isLoading}
                     >
                       <option value="">Select a category</option>
                       {categories.map(cat => (
@@ -248,6 +254,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="City, State (e.g., Mumbai, Maharashtra)"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -261,7 +268,7 @@ const SubmitHelpRequestPage = () => {
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   {urgencyLevels.map(level => (
-                    <label key={level.value} className="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label key={level.value} className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-50'}`}>
                       <input
                         type="radio"
                         name="urgency"
@@ -270,6 +277,7 @@ const SubmitHelpRequestPage = () => {
                         onChange={handleInputChange}
                         className="text-orange-500 focus:ring-orange-500"
                         required
+                        disabled={isLoading}
                       />
                       <div className="flex-1">
                         <div className={`font-semibold ${level.color}`}>{level.value}</div>
@@ -286,7 +294,7 @@ const SubmitHelpRequestPage = () => {
                   <Camera className="w-5 h-5 inline mr-2" />
                   Video Message (Optional)
                 </h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center ${isLoading ? 'opacity-60' : ''}`}>
                   <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h4 className="text-lg font-medium text-gray-700 mb-2">Upload a Short Video</h4>
                   <p className="text-gray-600 mb-4">
@@ -298,28 +306,29 @@ const SubmitHelpRequestPage = () => {
                     ref={fileInputRef}
                     onChange={handleVideoChange}
                     className="hidden"
+                    disabled={isLoading}
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => fileInputRef.current.click()}
+                    disabled={isLoading}
                   >
                     Choose Video File
                   </Button>
 
-                 {videoFile && (
-  <div className="mt-4 text-sm text-gray-700">
-    <p><strong>Selected:</strong> {videoFile.name}</p>
-    <div className="mt-2 w-full max-h-60 rounded-lg border overflow-hidden bg-black flex items-center justify-center">
-      <video
-        src={URL.createObjectURL(videoFile)}
-        controls
-        className="w-full h-60 object-contain"
-      />
-    </div>
-  </div>
-)}
-
+                  {videoFile && (
+                    <div className="mt-4 text-sm text-gray-700">
+                      <p><strong>Selected:</strong> {videoFile.name}</p>
+                      <div className="mt-2 w-full max-h-60 rounded-lg border overflow-hidden bg-black flex items-center justify-center">
+                        <video
+                          src={URL.createObjectURL(videoFile)}
+                          controls
+                          className="w-full h-60 object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -331,13 +340,14 @@ const SubmitHelpRequestPage = () => {
                 </h3>
                 
                 <div className="mb-6">
-                  <label className="flex items-center space-x-3">
+                  <label className={`flex items-center space-x-3 ${isLoading ? 'opacity-60' : ''}`}>
                     <input
                       type="checkbox"
                       name="anonymous"
                       checked={formData.anonymous}
                       onChange={handleInputChange}
                       className="text-orange-500 focus:ring-orange-500"
+                      disabled={isLoading}
                     />
                     <span className="text-gray-700">
                       Submit anonymously (your details will be verified but not displayed publicly)
@@ -358,6 +368,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Your name or preferred name"
                       required
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -373,6 +384,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Your contact number"
                       required
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -388,6 +400,7 @@ const SubmitHelpRequestPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Your email address"
                       required
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -402,6 +415,7 @@ const SubmitHelpRequestPage = () => {
                       rows={4}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Any additional information that might be helpful..."
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -410,11 +424,12 @@ const SubmitHelpRequestPage = () => {
               {/* Terms and Submit */}
               <div className="border-t pt-6">
                 <div className="mb-6">
-                  <label className="flex items-start space-x-3">
+                  <label className={`flex items-start space-x-3 ${isLoading ? 'opacity-60' : ''}`}>
                     <input
                       type="checkbox"
                       className="text-orange-500 focus:ring-orange-500 mt-1"
                       required
+                      disabled={isLoading}
                     />
                     <span className="text-sm text-gray-700">
                       I confirm that the information provided is accurate and I agree to Yuva Savera's 
@@ -425,9 +440,30 @@ const SubmitHelpRequestPage = () => {
                   </label>
                 </div>
 
-                <Button type="submit" variant="primary" size="lg" className="w-full md:w-auto">
-                  Submit Help Request
-                </Button>
+                <motion.div
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <Button 
+                    type="submit" 
+                    variant="primary" 
+                    size="lg" 
+                    className={`w-full md:w-auto transition-opacity duration-300 ${isLoading ? 'opacity-70' : 'opacity-100'}`}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Submitting...
+                      </div>
+                    ) : (
+                      "Submit Help Request"
+                    )}
+                  </Button>
+                </motion.div>
               </div>
             </form>
           </Card>

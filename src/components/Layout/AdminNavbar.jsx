@@ -10,14 +10,14 @@ const AdminNavbar = () => {
   const location = useLocation();
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
 
-  // ✅ dynamic heading based on role
+  // ✅ Dynamic heading based on role
   const getAdminTitle = () => {
     if (!userInfo) return "Admin Panel";
     switch (userInfo.role) {
       case "core_admin":
         return "Core Admin Dashboard";
-      case "district_admin":
-        return "District Admin Dashboard";
+      case "district_lead":
+        return "District Lead Dashboard";
       case "moderator":
         return "Moderator Dashboard";
       default:
@@ -31,13 +31,33 @@ const AdminNavbar = () => {
     navigate("/login");
   };
 
-  // ✅ dashboard navigation items (moved from CoreDashboard)
-  const dashboardTabs = [
+  // ✅ Base navigation items (for core & district admins)
+  let dashboardTabs = [
     { name: "Manage Requests", path: "/admin/requests" },
     { name: "Manage Users", path: "/admin/users" },
     { name: "Reports", path: "/admin/reports" },
     { name: "Settings", path: "/admin/settings" },
   ];
+
+  // ✅ Add Manage Moderators only if Core Admin
+  if (userInfo?.role === "core_admin") {
+    dashboardTabs.splice(1, 0, { name: "Manage Moderators", path: "/admin/moderators" });
+  }
+
+  // ✅ Add Manage Stories for Core Admin
+if (userInfo?.role === "core_admin") {
+  dashboardTabs.splice(2, 0, { name: "Manage Stories", path: "/admin/stories" });
+}
+
+
+  // ✅ Moderator-specific navigation
+  if (userInfo?.role === "moderator") {
+    dashboardTabs = [
+      { name: "Dashboard", path: "/moderator" },
+      { name: "Content Approval", path: "/moderator/content" },
+      { name: "Reported Content", path: "/moderator/reported" },
+    ];
+  }
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">

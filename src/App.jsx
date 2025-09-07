@@ -16,18 +16,27 @@ import PartnerRegistrationPage from "./pages/PartnerRegistrationPage";
 import ContactPage from "./pages/ContactPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SubmitStoryPage from "./pages/SubmitStoryPage";
+import ManageStories from "./pages/admin/core/ManageStories";
+
+
 
 // Admin dashboards
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
+// Moderator layout + pages
+import ModeratorDashboardLayout from "./pages/admin/moderator/ModeratorDashboardLayout";
+import ModeratorDashboard from "./pages/admin/moderator/ModeratorDashboard";
+import ContentApproval from "./pages/admin/moderator/ContentApproval";
+import ReportedContent from "./pages/admin/moderator/ReportedContent";
+
 function App() {
-  // Get logged-in user from localStorage
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
 
   return (
     <Router>
       <Routes>
-        {/* Public / Normal routes */}
+        {/* Public routes with frontend Layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
@@ -44,8 +53,13 @@ function App() {
           <Route path="contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="submit-story" element={<SubmitStoryPage />} />
+          <Route path="/admin/stories" element={<ManageStories />} />
 
-          {/* Admin route */}
+          
+
+
+          {/* Admin route stays inside Layout for now */}
           <Route
             path="/admin/*"
             element={
@@ -56,6 +70,24 @@ function App() {
               )
             }
           />
+        </Route>
+
+        
+
+        {/* Moderator routes OUTSIDE Layout (no frontend navbar) */}
+        <Route
+          path="/moderator/*"
+          element={
+            userInfo && userInfo.role === "moderator" ? (
+              <ModeratorDashboardLayout />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        >
+          <Route index element={<ModeratorDashboard />} />
+          <Route path="content" element={<ContentApproval />} />
+          <Route path="reported" element={<ReportedContent />} />
         </Route>
       </Routes>
     </Router>
