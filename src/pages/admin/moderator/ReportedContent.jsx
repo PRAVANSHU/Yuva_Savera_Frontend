@@ -5,10 +5,12 @@ const ReportedContent = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem("token");
+
+  // Fetch reported content (moderator endpoint)
   const fetchReports = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("/api/admin/moderator/reported", {
+      const res = await axios.get("http://localhost:5000/api/moderator/reports", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports(res.data.reports || []);
@@ -19,31 +21,78 @@ const ReportedContent = () => {
     }
   };
 
+  // Update report status (moderator endpoint)
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/moderator/reports/${id}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Optimistic UI update
+      setReports((prevReports) =>
+        prevReports.map((r) =>
+          r._id === id ? { ...r, status: newStatus } : r
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error.response?.data || error.message);
+    }
+  };
+
   useEffect(() => {
     fetchReports();
   }, []);
 
-  if (loading) return <p>Loading reported content...</p>;
-  if (!reports.length) return <p>No reported content found.</p>;
+  if (loading) return <p className="text-center py-10">Loading reported content...</p>;
+  if (!reports.length) return <p className="text-center py-10">No reported content found.</p>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="w-full border-collapse border border-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-orange-500">
           <tr>
-            <th className="border px-4 py-2">Title</th>
-            <th className="border px-4 py-2">Reported By</th>
-            <th className="border px-4 py-2">Date</th>
-            <th className="border px-4 py-2">Status</th>
+            <th className="text-left border px-4 py-2 text-white font-semibold">Content Title</th>
+            <th className="text-left border px-4 py-2 text-white font-semibold">Reported By</th>
+            <th className="text-left border px-4 py-2 text-white font-semibold">Reason</th>
+            <th className="text-left border px-4 py-2 text-white font-semibold">Date</th>
+            <th className="text-left border px-4 py-2 text-white font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody>
-          {reports.map((item) => (
-            <tr key={item._id}>
-              <td className="border px-4 py-2">{item.title}</td>
-              <td className="border px-4 py-2">{item.reportedBy?.name || "N/A"}</td>
-              <td className="border px-4 py-2">{new Date(item.createdAt).toLocaleDateString()}</td>
-              <td className="border px-4 py-2 capitalize">{item.status}</td>
+        <tbody className="divide-y divide-gray-200">
+          {reports.map((report) => (
+            <tr key={report._id} className="hover:bg-gray-50">
+              <td className="border px-4 py-2">
+                {report.content?.title || report.title || "Untitled"}
+              </td>
+              <td className="border px-4 py-2">
+                {report.submittedBy?.name || "Anonymous"}
+              </td>
+              <td className="border px-4 py-2">
+                {report.reason || report.description || "No reason provided"}
+              </td>
+              <td className="border px-4 py-2">
+                {new Date(report.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-4 py-2">
+                <select
+                  value={report.status}
+                  onChange={(e) => updateStatus(report._id, e.target.value)}
+                  className={`border rounded px-2 py-1 text-sm font-medium
+                    ${
+                      report.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : report.status === "reviewed"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="reviewed">Reviewed</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </td>
             </tr>
           ))}
         </tbody>
