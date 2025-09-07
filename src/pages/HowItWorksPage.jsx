@@ -1,34 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, Search, Heart, Star, Play, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 
 const HowItWorksPage = () => {
+  const navigate = useNavigate();
+
   const volunteerSteps = [
     {
       icon: UserPlus,
       title: 'Register as Volunteer',
       description: 'Sign up with your skills, interests, and location preferences.',
-      details: ['Fill out basic information', 'Specify your skills and expertise', 'Choose causes you care about', 'Upload verification documents']
+      details: [
+        'Fill out basic information',
+        'Specify your skills and expertise',
+        'Choose causes you care about',
+        'Upload verification documents'
+      ]
     },
     {
       icon: Search,
       title: 'Browse Opportunities',
       description: 'Explore help requests that match your skills and availability.',
-      details: ['View filtered requests', 'Check location and urgency', 'Read detailed descriptions', 'See video requests when available']
+      details: [
+        'View filtered requests',
+        'Check location and urgency',
+        'Read detailed descriptions',
+        'See video requests when available'
+      ]
     },
     {
       icon: Heart,
       title: 'Take Action',
       description: 'Connect with help seekers and provide assistance.',
-      details: ['Contact the help seeker', 'Coordinate meeting times', 'Provide the needed support', 'Document your impact']
+      details: [
+        'Contact the help seeker',
+        'Coordinate meeting times',
+        'Provide the needed support',
+        'Document your impact'
+      ]
     },
     {
       icon: Star,
       title: 'Earn Recognition',
       description: 'Build your profile with points, badges, and testimonials.',
-      details: ['Receive points for completed help', 'Unlock achievement badges', 'Get testimonials from beneficiaries', 'Climb the leaderboard']
+      details: [
+        'Receive points for completed help',
+        'Unlock achievement badges',
+        'Get testimonials from beneficiaries',
+        'Climb the leaderboard'
+      ]
     }
   ];
 
@@ -37,25 +60,45 @@ const HowItWorksPage = () => {
       icon: UserPlus,
       title: 'Create Your Request',
       description: 'Submit your help request with details about what you need.',
-      details: ['Choose appropriate category', 'Describe your situation clearly', 'Set urgency level', 'Add location information']
+      details: [
+        'Choose appropriate category',
+        'Describe your situation clearly',
+        'Set urgency level',
+        'Add location information'
+      ]
     },
     {
       icon: Search,
       title: 'Get Matched',
       description: 'Our system connects you with suitable volunteers.',
-      details: ['Automatic matching by skills', 'Location-based suggestions', 'Receive volunteer proposals', 'Review volunteer profiles']
+      details: [
+        'Automatic matching by skills',
+        'Location-based suggestions',
+        'Receive volunteer proposals',
+        'Review volunteer profiles'
+      ]
     },
     {
       icon: Heart,
       title: 'Receive Support',
       description: 'Work with volunteers to address your needs.',
-      details: ['Connect with matched volunteers', 'Schedule assistance sessions', 'Receive the help you need', 'Maintain communication']
+      details: [
+        'Connect with matched volunteers',
+        'Schedule assistance sessions',
+        'Receive the help you need',
+        'Maintain communication'
+      ]
     },
     {
       icon: CheckCircle,
       title: 'Share Your Story',
       description: 'Document your journey and inspire others.',
-      details: ['Write about your experience', 'Rate and review volunteers', 'Upload before/after content', 'Inspire the community']
+      details: [
+        'Write about your experience',
+        'Rate and review volunteers',
+        'Upload before/after content',
+        'Inspire the community'
+      ]
     }
   ];
 
@@ -134,7 +177,7 @@ const HowItWorksPage = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button variant="secondary" size="lg">
+            <Button variant="secondary" size="lg" onClick={() => navigate("/volunteer-registration")}>
               Start Volunteering Today
             </Button>
           </div>
@@ -190,7 +233,7 @@ const HowItWorksPage = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button variant="primary" size="lg">
+            <Button variant="primary" size="lg" onClick={() => navigate("/submit-help-request")}>
               Request Help Now
             </Button>
           </div>

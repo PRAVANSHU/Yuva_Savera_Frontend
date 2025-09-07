@@ -9,6 +9,7 @@ import Settings from "./Settings";
 import CaseTracking from "./CaseTracking";
 import VolunteerManagement from "./VolunteerManagement";
 import Notifications from "./Notifications";
+import ManageModerators from "./ManageModerators";
 
 const CoreDashboard = () => {
   return (
@@ -23,9 +24,11 @@ const CoreDashboard = () => {
           <Route path="cases" element={<CaseTracking />} />
           <Route path="users" element={<ManageUsers />} />
           <Route path="volunteers" element={<VolunteerManagement />} />
+          <Route path="moderators" element={<ManageModerators />} />
           <Route path="reports" element={<Reports />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="settings" element={<Settings />} />
+          
         </Routes>
       </main>
     </div>
