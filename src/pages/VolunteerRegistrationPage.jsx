@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Star, Upload, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Star, Upload, CheckCircle, X } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 
@@ -14,11 +14,15 @@ const VolunteerRegistrationPage = () => {
     causes: [],
     availability: '',
     experience: '',
-    motivation: ''
+    motivation: '',
+    idProof: null // Added for file upload
   });
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef(null);
 
   const skillOptions = [
     'Teaching & Education',
@@ -69,12 +73,87 @@ const VolunteerRegistrationPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // File upload handler
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        setUploadError('Please upload a valid file (JPEG, JPG, PNG, or PDF)');
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        setUploadError('File size must be less than 5MB');
+        return;
+      }
+
+      setUploadError('');
+      setFormData(prev => ({ ...prev, idProof: file }));
+    }
+  };
+
+  // Remove uploaded file
+  const removeFile = () => {
+    setFormData(prev => ({ ...prev, idProof: null }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Trigger file input click
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => {
+    setIsSubmitting(true);
+
+    try {
+      // Create FormData for multipart/form-data
+      const submitData = new FormData();
+      
+      // Append all form fields
+      submitData.append('name', formData.name);
+      submitData.append('email', formData.email);
+      submitData.append('phone', formData.phone);
+      submitData.append('location', formData.location);
+      submitData.append('skills', JSON.stringify(formData.skills));
+      submitData.append('causes', JSON.stringify(formData.causes));
+      submitData.append('availability', formData.availability);
+      submitData.append('experience', formData.experience);
+      submitData.append('motivation', formData.motivation);
+      
+      // Append file if exists
+      if (formData.idProof) {
+        submitData.append('idProof', formData.idProof);
+      }
+
+      // Replace 'YOUR_BACKEND_URL' with your actual backend endpoint
+      const response = await fetch('http://localhost:5000/api/volunteer/register', {
+        method: 'POST',
+        body: submitData,
+        // Don't set Content-Type header - let browser set it with boundary for FormData
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Registration successful:', result);
       setIsSubmitted(true);
-    }, 1000);
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('There was an error submitting your registration. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -236,16 +315,59 @@ const VolunteerRegistrationPage = () => {
                     </div>
                   </div>
 
+                  {/* File Upload Section */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Upload className="w-4 h-4 inline mr-2" />
                       ID Proof (Optional)
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600">Click to upload or drag and drop</p>
-                      <p className="text-sm text-gray-500 mt-1">Aadhaar Card, Driving License, or Passport</p>
-                    </div>
+                    
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      className="hidden"
+                    />
+                    
+                    {!formData.idProof ? (
+                      <div 
+                        onClick={triggerFileInput}
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                      >
+                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600">Click to upload or drag and drop</p>
+                        <p className="text-sm text-gray-500 mt-1">Aadhaar Card, Driving License, or Passport</p>
+                        <p className="text-xs text-gray-400 mt-1">JPEG, JPG, PNG, PDF (Max 5MB)</p>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <Upload className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">{formData.idProof.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {(formData.idProof.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={removeFile}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {uploadError && (
+                      <p className="text-red-500 text-sm mt-2">{uploadError}</p>
+                    )}
                   </div>
 
                   <div className="flex justify-end">
@@ -413,9 +535,9 @@ const VolunteerRegistrationPage = () => {
                     <Button 
                       type="submit" 
                       variant="primary"
-                      disabled={!formData.motivation}
+                      disabled={!formData.motivation || isSubmitting}
                     >
-                      Complete Registration
+                      {isSubmitting ? 'Submitting...' : 'Complete Registration'}
                     </Button>
                   </div>
                 </motion.div>
