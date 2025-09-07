@@ -8,7 +8,15 @@ const AdminNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+  const safeParse = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+
+const userInfo = safeParse(localStorage.getItem("userInfo"));
 
   // ✅ dynamic heading based on role
   const getAdminTitle = () => {
@@ -31,13 +39,44 @@ const AdminNavbar = () => {
     navigate("/login");
   };
 
-  // ✅ dashboard navigation items (moved from CoreDashboard)
-  const dashboardTabs = [
-    { name: "Manage Requests", path: "/admin/requests" },
-    { name: "Manage Users", path: "/admin/users" },
-    { name: "Reports", path: "/admin/reports" },
-    { name: "Settings", path: "/admin/settings" },
-  ];
+// ✅ dashboard navigation items based on role
+const getDashboardTabs = () => {
+  if (!userInfo) return [];
+
+  switch (userInfo.role) {
+    case "core_admin":
+      return [
+        { name: "Dashboard", path: "/admin/dashboard" },
+        { name: "Manage Requests", path: "/admin/requests" },
+        { name: "Case Tracking", path: "/admin/cases" },
+        { name: "Manage Users", path: "/admin/users" },
+        { name: "Volunteers", path: "/admin/volunteers" },
+        { name: "Reports", path: "/admin/reports" },
+        { name: "Notifications", path: "/admin/notifications" },
+        { name: "Settings", path: "/admin/settings" },
+      ];
+    case "district_admin":
+      return [
+        { name: "Dashboard", path: "/admin/dashboard" },
+        { name: "Manage Requests", path: "/admin/requests" },
+        { name: "Case Tracking", path: "/admin/cases" },
+        { name: "Volunteers", path: "/admin/volunteers" },
+        { name: "Reports", path: "/admin/reports" },
+        { name: "Settings", path: "/admin/settings" },
+      ];
+    case "moderator":
+      return [
+        { name: "Dashboard", path: "/admin/dashboard" },
+        { name: "Manage Requests", path: "/admin/requests" },
+        { name: "Reports", path: "/admin/reports" },
+      ];
+    default:
+      return [];
+  }
+};
+
+const dashboardTabs = getDashboardTabs();
+
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">

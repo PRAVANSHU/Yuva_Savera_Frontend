@@ -29,7 +29,8 @@ const Navbar = () => {
     { name: 'Political Awareness', path: '/political-awareness' },
     { name: 'Browse Requests', path: '/browse-requests' },
     { name: 'Story Wall', path: '/story-wall' },
-    { name: 'Contact', path: '/contact' }
+    { name: 'Contact', path: '/contact' },
+    { name: 'Report Issue', path: '/report-issue' }
   ];
 
   return (
@@ -48,7 +49,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-10">
+          <div className="hidden lg:flex items-center space-x-3">
             <div className="flex items-center space-x-8">
               {navItems.map((item) => (
                 <Link

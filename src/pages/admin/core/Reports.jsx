@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Card from "../../../components/UI/Card";
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem("token");
+
+  // Fetch reports
   const fetchReports = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("/api/admin/reports", {
+      const res = await axios.get("http://localhost:5000/api/reports", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports(res.data.reports || []);
@@ -19,37 +22,76 @@ const Reports = () => {
     }
   };
 
+  // Update report status
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/reports/${id}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update UI instantly without refetch
+      setReports((prevReports) =>
+        prevReports.map((r) =>
+          r._id === id ? { ...r, status: newStatus } : r
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error.response?.data || error.message);
+    }
+  };
+
   useEffect(() => {
     fetchReports();
   }, []);
 
-  if (loading) return <p>Loading reports...</p>;
-  if (!reports.length) return <p>No reports found.</p>;
+  if (loading) return <p className="text-center py-10">Loading reports...</p>;
+  if (!reports.length) return <p className="text-center py-10">No reports found.</p>;
 
-  return (
-    <div className="overflow-x-auto">
+return (
+  <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="w-full border-collapse border border-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-orange-500">
           <tr>
-            <th className="border px-4 py-2">Title</th>
-            <th className="border px-4 py-2">Submitted By</th>
-            <th className="border px-4 py-2">Date</th>
-            <th className="border px-4 py-2">Status</th>
+            <th className="text-left border px-4 py-2 border-b text-white font-semibold">Title</th>
+            <th className="text-left border px-4 py-2 border-b text-white font-semibold">Submitted By</th>
+            <th className="text-left border px-4 py-2 border-b text-white font-semibold">Date</th>
+            <th className="text-left border px-4 py-2 border-b text-white font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-200">
           {reports.map((report) => (
-            <tr key={report._id}>
-              <td className="border px-4 py-2">{report.title}</td>
-              <td className="border px-4 py-2">{report.user?.name || "N/A"}</td>
-              <td className="border px-4 py-2">{new Date(report.createdAt).toLocaleDateString()}</td>
-              <td className="border px-4 py-2 capitalize">{report.status}</td>
+            <tr key={report._id} className="hover:bg-gray-50">
+              <td className="border px-4 py-2 border-b">{report.title}</td>
+              <td className="border px-4 py-2 border-b">{report.submittedBy?.name || "N/A"}</td>
+              <td className="border px-4 py-2 border-b">
+                {new Date(report.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-4 py-2 border-b">
+                <select
+                  value={report.status}
+                  onChange={(e) => updateStatus(report._id, e.target.value)}
+                  className={`border rounded px-2 py-1 text-sm font-medium
+                    ${
+                      report.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : report.status === "reviewed"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="reviewed">Reviewed</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
-  );
+  </div>
+);
 };
 
 export default Reports;

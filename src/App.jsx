@@ -16,6 +16,7 @@ import PartnerRegistrationPage from "./pages/PartnerRegistrationPage";
 import ContactPage from "./pages/ContactPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ReportIssuePage from "./pages/ReportIssuePage";
 
 // Admin dashboards
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -44,6 +45,7 @@ function App() {
           <Route path="contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/report-issue" element={<ReportIssuePage />} />
 
           {/* Admin route */}
           <Route
