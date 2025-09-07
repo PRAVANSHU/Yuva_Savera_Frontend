@@ -20,6 +20,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import SubmitStoryPage from "./pages/SubmitStoryPage";
 import ReportIssuePage from "./pages/ReportIssuePage";
+import VolunteerDashboard from './pages/VolunteerDashboard';
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -57,6 +58,7 @@ function App() {
           <Route path="submit-story" element={<SubmitStoryPage />} />
           <Route path="/admin/stories" element={<ManageStories />} />
           <Route path="/report-issue" element={<ReportIssuePage />} />
+          <Route path="/dashboard" element={<VolunteerDashboard />} />
 
           {/* ================ Admin Dashboard (Core + District) ================ */}
           <Route
