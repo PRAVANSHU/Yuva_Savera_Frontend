@@ -11,7 +11,7 @@ const ModeratorDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/admin/moderator/stats", {
+      const res = await axios.get("http://localhost:5000/api/moderator/dashboard", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data.stats || {});
@@ -26,17 +26,17 @@ const ModeratorDashboard = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <p>Loading dashboard...</p>;
+  if (loading) return <p className="p-4">Loading dashboard...</p>;
 
   return (
     <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-white shadow rounded p-4">
-        <h3 className="text-lg font-semibold mb-2">Pending Content</h3>
-        <p className="text-2xl">{stats.pendingContent}</p>
+      <div className="bg-white shadow rounded p-6 text-center">
+        <h3 className="text-lg font-semibold mb-2 text-gray-700">Pending Content</h3>
+        <p className="text-3xl font-bold text-orange-500">{stats.pendingContent}</p>
       </div>
-      <div className="bg-white shadow rounded p-4">
-        <h3 className="text-lg font-semibold mb-2">Reported Content</h3>
-        <p className="text-2xl">{stats.reportedContent}</p>
+      <div className="bg-white shadow rounded p-6 text-center">
+        <h3 className="text-lg font-semibold mb-2 text-gray-700">Reported Content</h3>
+        <p className="text-3xl font-bold text-red-500">{stats.reportedContent}</p>
       </div>
     </div>
   );
