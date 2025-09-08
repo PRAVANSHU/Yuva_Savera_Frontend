@@ -1,6 +1,8 @@
 // src/pages/VolunteerDashboard.jsx
+import React from "react";
+
 const VolunteerDashboard = () => {
-  return <div>Volunteer Dashboard Page</div>;
+  return <h1>Volunteer Dashboard</h1>;
 };
 
 export default VolunteerDashboard;
