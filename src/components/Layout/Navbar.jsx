@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, Sun, LogOut, ChevronDown, User } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,8 +32,9 @@ const Navbar = () => {
     { name: 'Story Wall', path: '/story-wall' },
     { name: 'Contact', path: '/contact' },
     { name: 'Report Issue', path: '/report-issue' }
-   
+
   ];
+
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -59,11 +60,10 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative text-sm font-medium transition-colors duration-200 ${
-                    location.pathname === item.path
-                      ? "text-orange-500"
-                      : "text-gray-700 hover:text-orange-500"
-                  }`}
+                  className={`relative text-sm font-medium transition-colors duration-200 ${location.pathname === item.path
+                    ? "text-orange-500"
+                    : "text-gray-700 hover:text-orange-500"
+                    }`}
                 >
                   {item.name}
                   {location.pathname === item.path && (
@@ -95,6 +95,16 @@ const Navbar = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 border border-gray-200"
                     >
+                      {userInfo?.role === "volunteer" && (
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setDropdownOpen(false)}   
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -140,11 +150,10 @@ const Navbar = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={`block px-4 py-2 text-sm rounded-md ${
-                      location.pathname === item.path
-                        ? "text-orange-500 bg-gray-100"
-                        : "text-gray-700 hover:text-orange-500"
-                    }`}
+                    className={`block px-4 py-2 text-sm rounded-md ${location.pathname === item.path
+                      ? "text-orange-500 bg-gray-100"
+                      : "text-gray-700 hover:text-orange-500"
+                      }`}
                   >
                     {item.name}
                   </Link>

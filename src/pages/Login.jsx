@@ -31,7 +31,11 @@ const Login = () => {
         window.location.href = "/admin/dashboard";
       } else if (user.role === "moderator") {
         window.location.href = "/moderator/dashboard";
-      } else {
+      }
+       else if (user.role === "volunteer") {
+        window.location.href = "/dashboard";
+       }
+       else {
         // Normal frontend users (volunteers, partners, etc.)
         window.location.href = "/";
       }
