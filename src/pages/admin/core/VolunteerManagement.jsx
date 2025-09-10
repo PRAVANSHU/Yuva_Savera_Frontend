@@ -61,7 +61,7 @@ const VolunteerManagement = () => {
 const updateStatus = async (id, newStatus) => {
   try {
     await axios.patch(
-      `http://localhost:5000/api/volunteer/${id}/review`, // <-- Correct route
+      `http://localhost:5000/api/volunteer/${id}/review`, 
       { status: newStatus },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -78,7 +78,7 @@ const updateStatus = async (id, newStatus) => {
 const toggleActive = async (id, currentActive) => {
   try {
     await axios.patch(
-      `http://localhost:5000/api/volunteer/${id}/toggle`, // <-- Correct route
+      `http://localhost:5000/api/volunteer/${id}/toggle`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );

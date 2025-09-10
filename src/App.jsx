@@ -31,7 +31,7 @@ import ModeratorDashboardLayout from "./pages/admin/moderator/ModeratorDashboard
 import ModeratorDashboard from "./pages/admin/moderator/ModeratorDashboard";
 import ContentApproval from "./pages/admin/moderator/ContentApproval";
 import ReportedContent from "./pages/admin/moderator/ReportedContent";
-
+import SubmitCampaignPage from "./pages/SubmitCampaignPage";
 function App() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
 
@@ -59,6 +59,7 @@ function App() {
           <Route path="/admin/stories" element={<ManageStories />} />
           <Route path="/report-issue" element={<ReportIssuePage />} />
           <Route path="/dashboard" element={<VolunteerDashboard />} />
+          <Route path="/submit-campaign" element={<SubmitCampaignPage />} />
 
           {/* ================ Admin Dashboard (Core + District) ================ */}
           <Route

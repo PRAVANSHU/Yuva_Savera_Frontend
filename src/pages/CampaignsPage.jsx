@@ -1,27 +1,40 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, MapPin, Users, Clock, ArrowRight, Filter } from 'lucide-react';
-import Card from '../components/UI/Card';
-import Button from '../components/UI/Button';
-import { dummyCampaigns } from '../utils/dummyData';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Calendar, MapPin, Users, Clock, ArrowRight, Filter } from "lucide-react";
+import Card from "../components/UI/Card";
+import Button from "../components/UI/Button";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CampaignsPage = () => {
-  const [filter, setFilter] = useState('all');
+  const [campaigns, setCampaigns] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const filteredCampaigns = dummyCampaigns.filter(campaign => 
-    filter === 'all' || campaign.status.toLowerCase() === filter
-  );
+  const fetchCampaigns = async () => {
+    try {
+      const res = await axios.get("/api/campaigns");
+      setCampaigns(res.data.campaigns || []);
+    } catch (err) {
+      console.error("Error fetching campaigns:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { 
+    fetchCampaigns(); 
+  }, []);
+
+  const filtered = campaigns.filter(c => filter === 'all' || (c.lifecycle || '').toLowerCase() === filter);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Active':
-        return 'bg-green-100 text-green-800';
-      case 'Upcoming':
-        return 'bg-blue-100 text-blue-800';
-      case 'Completed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Upcoming': return 'bg-blue-100 text-blue-800';
+      case 'Completed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -72,49 +85,55 @@ const CampaignsPage = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredCampaigns.map((campaign, index) => (
-              <Card key={campaign.id} delay={index * 0.1}>
-                <div className="relative mb-4">
-                  <img
-                    src={campaign.image}
-                    alt={campaign.title}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(campaign.status)}`}>
-                      {campaign.status}
-                    </span>
+            {loading ? (
+              <p className="text-center col-span-3">Loading campaigns...</p>
+            ) : filtered.length === 0 ? (
+              <p className="text-center col-span-3">No campaigns found.</p>
+            ) : (
+              filtered.map((campaign, index) => (
+                <Card key={campaign._id} delay={index * 0.1}>
+                  <div className="relative mb-4">
+                    <img
+                      src={campaign.imageUrl || campaign.image}
+                      alt={campaign.title}
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(campaign.lifecycle)}`}>
+                        {campaign.lifecycle}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <h3 className="text-xl font-bold text-gray-800 mb-3">{campaign.title}</h3>
-                <p className="text-gray-600 mb-4 line-clamp-3">{campaign.description}</p>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">{campaign.title}</h3>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{campaign.description}</p>
 
-                <div className="space-y-2 mb-6 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>{new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}</span>
+                  <div className="space-y-2 mb-6 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>{new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <span>{campaign.location}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-2" />
+                      <span>{campaign.participantsCount || 0} participants</span>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{campaign.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-4 h-4 mr-2" />
-                    <span>{campaign.participantsCount} participants</span>
-                  </div>
-                </div>
 
-                <Button 
-                  variant={campaign.status === 'Active' ? 'primary' : 'outline'} 
-                  className="w-full"
-                  icon={ArrowRight}
-                >
-                  {campaign.status === 'Active' ? 'Join Campaign' : 
-                   campaign.status === 'Upcoming' ? 'Register Interest' : 'View Details'}
-                </Button>
-              </Card>
-            ))}
+                  <Button 
+                    variant={campaign.lifecycle === 'Active' ? 'primary' : 'outline'} 
+                    className="w-full"
+                    icon={ArrowRight}
+                  >
+                    {campaign.lifecycle === 'Active' ? 'Join Campaign' : 
+                     campaign.lifecycle === 'Upcoming' ? 'Register Interest' : 'View Details'}
+                  </Button>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -195,7 +214,11 @@ const CampaignsPage = () => {
                 </div>
               </div>
 
-              <Button variant="primary" size="lg">
+              <Button 
+                variant="primary" 
+                size="lg"
+                onClick={() => navigate('/submit-campaign')}
+              >
                 Propose a Campaign
               </Button>
             </Card>

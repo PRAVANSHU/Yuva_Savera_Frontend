@@ -58,6 +58,7 @@ const AdminNavbar = () => {
           { name: "Volunteers", path: "/admin/volunteers" },
               { name: "Manage Moderators", path: "/admin/moderators" }, 
           { name: "Manage Stories", path: "/admin/stories" },
+            { name: "Manage Campaigns", path: "/admin/campaigns" },
           { name: "Reports", path: "/admin/reports" },
         ];
 

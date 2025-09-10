@@ -11,6 +11,8 @@ import Button from '../components/UI/Button';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
+const token = localStorage.getItem("token");
+
 // UI helpers
 const chip = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-white';
 const SectionTitle = ({ icon: Icon, children }) => (
@@ -35,13 +37,12 @@ const StatCard = ({ icon: Icon, label, value, sub }) => (
 );
 const Badge = ({ icon: Icon, text, tone = 'blue' }) => (
   <div
-    className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
-      tone === 'blue'
+    className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${tone === 'blue'
         ? 'bg-blue-50 border-blue-200 text-blue-700'
         : tone === 'orange'
-        ? 'bg-orange-50 border-orange-200 text-orange-700'
-        : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-    }`}
+          ? 'bg-orange-50 border-orange-200 text-orange-700'
+          : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+      }`}
   >
     {Icon && <Icon className="w-4 h-4" />}
     <span className="text-sm font-medium">{text}</span>
@@ -62,8 +63,13 @@ export default function VolunteerDashboard() {
     async function loadData() {
       try {
         // 1) Load profile
-        const res1 = await fetch(`${API_BASE}/api/volunteer/profile`, {
-          credentials: 'include',
+        const res1 = await fetch(`${API_BASE}/volunteer/myprofile`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
         });
         if (res1.ok) {
           const json = await res1.json();
@@ -71,7 +77,7 @@ export default function VolunteerDashboard() {
         }
 
         // 2) Load requests and compute points
-        const res2 = await fetch(`${API_BASE}/api/volunteer/requests`, {
+        const res2 = await fetch(`${API_BASE}/volunteer/requests`, {
           credentials: 'include',
         });
         if (res2.ok) {
